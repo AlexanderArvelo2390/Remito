@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "catalogo": {
+    "video": [
+      "ATRIL PODIO DIGITAL",
+      "Laptop",
+      "Proyector",
+      "TV 43 Con Pie",
+      "Switch L4",
+      "Monitor 32",
+      "Cue/Pasador",
+      "Cable HDMI"
+    ],
+    "sonido": [
+      "AC T45",
+      "BUMPER T45",
+      "AC GT12",
+      "CONSOLA WING",
+      "STAGEBOX",
+      "RACK MIC 8+8",
+      "PIE ANTENAS",
+      "PIE DE MIC",
+      "MIC GROSSNEK",
+      "DI",
+      "MINI PC WING",
+      "ROUTER WIFI",
+      "MALETIN ACC SONIDO"
+    ],
+    "iluminacion": [
+      "Neo 300W Beam",
+      " PAR LED RGBW",
+      "USB Proton LEd",
+      "Mini Brut",
+      "Fresnel LED 200W",
+      "Par led QUAD",
+      "Consola DMX 512",
+      "Avolite Tiger Touch ",
+      "Avolite Quark Touch mini",
+      "Barra led pinspot",
+      "Splitter DMX 512",
+      "Cables DMX ",
+      "Cables UTP",
+      "Cables de corriente",
+      "Tramos 30X30 3M",
+      "Tramos 30X30 2M",
+      "Tramos 30X30 1M",
+      "Cubo 30X30 ",
+      "Chapon Base",
+      "Chapon Tapa"
+
+    ],
+    "montaje": [
+      "BIOMBO",
+      "Aparejos",
+      "Spansets",
+      "Ganchos",
+      "Mangas 8X10A",
+      "Mangas 4X10A",
+      "Acometida/Cable Camlock 5X32A",
+      "Zapatillas",
+      "Fraselina Negra",
+      "fraselina Blanca",
+      "Cintas "
+    ]
+  }
+}
