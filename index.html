@@ -10,6 +10,7 @@
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1222;--card:#181c33;--ink:#eef0fb;--mute:#9aa3c8;--line:#2b3157;--brand:#7b82ff;--chip:#222849;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0f1222;--card:#181c33;--ink:#eef0fb;--mute:#9aa3c8;--line:#2b3157;--brand:#7b82ff;--chip:#222849;color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Montserrat,system-ui,Arial,sans-serif}
 header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;max-width:1180px;margin:0 auto;padding:20px 20px 4px}
 .brand{background:#fff;border-radius:10px;padding:8px 14px;display:flex}
@@ -64,7 +65,8 @@ details .g{margin-top:12px}
   <h1>Generador de remitos</h1>
   <button id="b_theme" type="button" style="margin-left:auto" aria-label="Cambiar entre modo claro y oscuro">Modo oscuro</button>
 </header>
-<main>
+<p id="app_status" role="status" style="max-width:1180px;margin:12px auto;padding:0 20px;color:var(--mute);font-size:13px">Conectando con el espacio compartido…</p>
+<main id="app" hidden>
   <section id="sec_r">
     <h2>Remitos guardados</h2>
     <div class="bar">
@@ -129,6 +131,7 @@ details .g{margin-top:12px}
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const LOGO="data:image/jpeg;base64,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",LW=440,LH=51;
 const LOGO2="data:image/png;base64,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",L2W=560,L2H=61;
@@ -137,7 +140,10 @@ const AREAS=[["video","Video","#3b82f6"],["sonido","Sonido","#8b5cf6"],["ilumina
 const SEED={video:["ATRIL PODIO DIGITAL","CABLE HDMI","CUE / PASADOR","LAPTOP","MONITOR 32","PANTALLA LED","PC","PC - AMI","PC - LENOVO","PC - MSI","PC - SERVER","PLACA AUDIO FOCUSRITE","PROYECTOR","SWITCH L4","SWITCH YOLO-BOX","TARIMA PANTALLA","TV 32 LG","TV 43 CON PIE"],sonido:["AC GT12","AC SOPORTE GT","AC SUB FRONTAL","AC SUB PASABANDA","AC T45","BUMPER T45","CONSOLA WING","CONSOLA WING COMPACT","DASN","DI","EV 10","GANCHOS GT12","MALETIN ACC SONIDO","MIC GOOSENECK","MINI PC WING","PIE ANTENAS","PIE DE MIC","RACK MIC 8+8","ROUTER WIFI","STAGEBOX","TRIPODES"],iluminacion:["AVOLITE QUARK TOUCH MINI","AVOLITE TIGER TOUCH","BARRA LED PINSPOT","BEAM NEO 300W","CABLES DE CORRIENTE","CABLES DMX","CABLES UTP","CHAPON BASE","CHAPON TAPA","CONSOLA DMX 512","CUBO 30X30","FRESNEL LED 200W","MAQ HUMO HAZE","MINI BRUT","PAR LED FLAT","PAR LED PROTON 12 USB","PAR LED QUAD","PAR LED RGBW","ROSETA","SPLITTER DMX 512","STORMER","TORNILLOS TRUSS","TRUSS 15X15 - 3M","TRUSS 15X15 - TAPA","TRUSS 30X30 - 1M","TRUSS 30X30 - 2M","TRUSS 30X30 - 3M"],montaje:["ACOMETIDA / CABLE CAMLOCK 5X32A","ACOMETIDA / CABLE CAMLOCK 5X63A","APAREJOS","BIOMBO","CAJA HERRAMIENTAS","CASCOS","CINTAS","DISTRO ELECTRICO 5X32A","ENTELADO 360","FRISELINA BLANCA","FRISELINA NEGRA","GANCHOS SH/H","GRILLETES","MANGA 4X10A","MANGA 5X32A","MANGA 5X63A","MANGA 8X10A","MESA DJ","PISTA DE ACERO","SPANSETS","ZAPATILLAS"]};
 const CT=["Peralta Roberto Dardo","20-23767425-2","11.6474.8874  -  11.2240.5532","info@SymphonyDjs.com","www.SymphonyDjs.com","www.Symphony-Pro.com"];
 const M="ENERO FEBRERO MARZO ABRIL MAYO JUNIO JULIO AGOSTO SEPTIEMBRE OCTUBRE NOVIEMBRE DICIEMBRE".split(" ");
-let cat=JSON.parse(JSON.stringify(SEED)),cdb=null;
+const SB_URL="https://eyzgeabdstgefubuzcxo.supabase.co";
+const SB_KEY="sb_publishable_40JYi8mC5Z0CIK1YXmAPYw_0vFALPdf";
+const sb=window.supabase?.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})||null;
+let cat=JSON.parse(JSON.stringify(SEED)),sharedUserId=null,catalogChannel=null;
 try{const s=JSON.parse(localStorage.getItem("sym_cat"));if(s)cat={...cat,...s}}catch(e){}
 const SEEDV=3;
 function seedMerge(){
@@ -153,20 +159,13 @@ const say=t=>{$("msg").textContent=t};
 const L=i=>i.q>1?i.q+" "+i.n:i.n;
 
 async function saveCat(){
-  try{localStorage.setItem("sym_cat",JSON.stringify(cat))}catch(e){}
-  if(cdb)try{await cdb.set(cat)}catch(e){}
+  try{localStorage.setItem("sym_cat",JSON.stringify(cat))}catch(e){console.error("No se pudo guardar el catálogo en este navegador.",e)}
+  if(sb&&sharedUserId){
+    const data=Object.fromEntries(AREAS.map(([k])=>[k,cat[k]]));
+    const {error}=await sb.from("catalogo").upsert({id:"main",data});
+    if(error){console.error(error);say("No se pudo sincronizar el catálogo compartido. Revisá la conexión y los permisos.")}
+  }
 }
-(async()=>{
-  try{
-    const db=window.claude&&await claude.use("db");
-    if(!db)return;
-    cdb=db.doc("catalogo/main");
-    cdb.onSnapshot(s=>{
-      if(s.exists){const d=s.data();cat={...cat,...d};cat.seed=d.seed||0;if(seedMerge())saveCat();AREAS.forEach(([k])=>renderChips(k))}
-      else saveCat();
-    });
-  }catch(e){}
-})();
 
 function add(k,txt,q,keep){
   const m=/^(\d+)\s+(.+)$/.exec(txt.trim());
@@ -401,10 +400,9 @@ $("j_exp").onclick=async()=>{
   try{await save("catalogo-equipos-symphony.json",new Blob([JSON.stringify({version:2,catalogo:Object.fromEntries(AREAS.map(([k])=>[k,cat[k]]))},null,2)],{type:"application/json"}));say("Catálogo exportado.")}
   catch(e){say("No se pudo exportar el catálogo.")}
 };
-let remitos=[],rdb=null,cur=null,curUpd="",expiryTimer=null;
+let remitos=[],remitosChannel=null,cur=null,curUpd="",expiryTimer=null;
+let authGeneration=0,anonymousSignInPending=false;
 const REMITO_TTL=7*24*60*60*1000;
-try{remitos=JSON.parse(localStorage.getItem("sym_remitos"))||[]}catch(e){}
-const keepL=()=>{try{localStorage.setItem("sym_remitos",JSON.stringify(remitos))}catch(e){}};
 const expiresAt=r=>{
   const saved=Date.parse(r.upd||r.createdAt||"");
   return Number.isFinite(saved)?saved+REMITO_TTL:null;
@@ -421,13 +419,7 @@ function expireRemitos(){
   const expiredIds=new Set(expired.map(r=>r.id));
   remitos=remitos.filter(r=>!expiredIds.has(r.id));
   if(expiredIds.has(cur)){cur=null;curUpd=""}
-  keepL();renderR();
-  if(rdb){
-    Promise.all(expired.map(r=>rdb.doc(r.id).delete())).catch(error=>{
-      console.error(error);
-      say("Un remito vencido no se pudo borrar de la base compartida. Revisá tu conexión y permisos.");
-    });
-  }
+  renderR();
   scheduleExpiry();
 }
 const FL=[["cliente","cliente"],["fecha","fecha"],["lugar","lugar"],["chofer","chofer"],["patente","patente"]];
@@ -592,20 +584,22 @@ function dupR(r){fill(r);cur=null;curUpd="";renderR();$("f_titulo").scrollIntoVi
 function newR(){fill({titulo:$("f_titulo").defaultValue});cur=null;curUpd="";renderR();say("Remito nuevo en blanco.")}
 async function saveR(){
   if(!V("f_cliente")&&!V("f_lugar")){say("Poné al menos el cliente o el lugar para guardar el remito.");return}
+  if(!sb||!sharedUserId){say("No hay una conexión activa con el espacio compartido.");return}
   const now=new Date().toISOString(),id=cur||"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  const previous=remitos.find(x=>x.id===id);
-  const r={...snap(),id,createdAt:previous?.createdAt||previous?.upd||now,upd:now};
+  const {data:row,error}=await sb.from("remitos").upsert({id,data:snap()}).select("id,data,created_at,updated_at,expires_at").single();
+  if(error){console.error(error);say("No se pudo guardar el remito compartido. Revisá tu conexión y tus permisos.");return}
+  const r={...row.data,id:row.id,createdAt:row.created_at,upd:row.updated_at};
   cur=id;curUpd=r.upd;
   const i=remitos.findIndex(x=>x.id===id);
   i>=0?remitos[i]=r:remitos.push(r);
-  keepL();renderR();scheduleExpiry();
-  if(rdb){try{await rdb.doc(id).set(r);say("Remito guardado.")}catch(e){say("No se pudo guardar en la base compartida. Revisá tu conexión y tus permisos.")}}
-  else say("Remito guardado en este navegador.");
+  renderR();scheduleExpiry();say("Remito guardado y compartido.");
 }
 async function delR(id){
+  if(!sb||!sharedUserId){say("No hay una conexión activa con el espacio compartido.");return}
+  const {error}=await sb.from("remitos").delete().eq("id",id);
+  if(error){console.error(error);say("No se pudo eliminar el remito compartido.");return}
   remitos=remitos.filter(r=>r.id!==id);if(cur===id){cur=null;curUpd=""}
-  keepL();renderR();scheduleExpiry();
-  if(rdb)try{await rdb.doc(id).delete()}catch(e){say("No se pudo eliminar de la base compartida.")}
+  renderR();scheduleExpiry();say("Remito eliminado.");
 }
 function renderR(){
   const box=$("r_list");box.replaceChildren();
@@ -646,20 +640,110 @@ $("r_pdf_file").onchange=async e=>{
   catch(error){console.error(error);say(error.message||"No se pudo importar el PDF.")}
   finally{e.target.value=""}
 };
-(async()=>{
-  try{
-    const db=window.claude&&await claude.use("db");
-    if(!db)return;
-    rdb=db.collection("remitos");
-    rdb.onSnapshot(s=>{
-      remitos=s.docs.map(d=>({...d.data(),id:d.id}));
-      const c=remitos.find(r=>r.id===cur);
-      if(c&&(c.upd||"")>curUpd)say("Otra persona guardó cambios en este remito. Tocá Abrir en la lista para ver la versión nueva.");
-      keepL();expireRemitos();
-    });
-  }catch(e){}
-})();
+function mergeCatalog(data){
+  if(!data||typeof data!=="object")return false;
+  let changed=false;
+  AREAS.forEach(([k])=>{
+    const incoming=Array.isArray(data[k])?data[k].map(x=>String(x).trim().toUpperCase()).filter(Boolean):[];
+    const merged=[...new Set([...(cat[k]||[]),...incoming])].sort();
+    if(merged.length!==(cat[k]||[]).length||merged.some((name,i)=>name!==cat[k][i]))changed=true;
+    cat[k]=merged;
+  });
+  return changed;
+}
+async function syncCatalog(data){
+  if(mergeCatalog(data)){
+    AREAS.forEach(([k])=>renderChips(k));
+    await saveCat();
+  }
+}
+async function loadSharedCatalog(){
+  const {data,error}=await sb.from("catalogo").select("data").eq("id","main").maybeSingle();
+  if(error)throw error;
+  if(data)await syncCatalog(data.data);
+  else await saveCat();
+  catalogChannel=sb.channel("catalogo-compartido").on("postgres_changes",
+    {event:"*",schema:"public",table:"catalogo"},payload=>{void syncCatalog(payload.new?.data).catch(error=>{console.error(error);say("No se pudo actualizar el catálogo compartido.")})})
+    .subscribe(status=>{if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")say("Se perdió la conexión en vivo del catálogo.")});
+}
+async function migrateLocalRemitos(){
+  let old;
+  try{old=JSON.parse(localStorage.getItem("sym_remitos")||"[]")}
+  catch(error){console.error("No se pudieron leer los remitos locales.",error);say("Hay remitos locales con datos inválidos; no se importaron.");return}
+  if(!Array.isArray(old)||!old.length)return;
+  const now=new Date().toISOString();
+  const records=old.filter(r=>r&&r.id&&(!expiresAt(r)||expiresAt(r)>Date.now())).map(r=>({
+    id:String(r.id),data:Object.fromEntries(Object.entries(r).filter(([key])=>!["id","createdAt","upd"].includes(key))),
+    created_at:r.createdAt||r.upd||now
+  }));
+  if(!records.length){localStorage.removeItem("sym_remitos");return}
+  const {error}=await sb.from("remitos").upsert(records,{onConflict:"id",ignoreDuplicates:true});
+  if(error)throw error;
+  localStorage.removeItem("sym_remitos");
+  say(records.length+" remito(s) anteriores importados al espacio compartido.");
+}
+async function refreshSharedRemitos(){
+  const {data,error}=await sb.from("remitos").select("id,data,created_at,updated_at,expires_at")
+    .gt("expires_at",new Date().toISOString()).order("updated_at",{ascending:false});
+  if(error)throw error;
+  const previous=new Map(remitos.map(r=>[r.id,r.upd||""]));
+  remitos=data.map(row=>({...row.data,id:row.id,createdAt:row.created_at,upd:row.updated_at}));
+  const changed=remitos.find(r=>r.id===cur&&(r.upd||"")>(previous.get(r.id)||curUpd));
+  if(changed)say("Otra persona guardó cambios en este remito. Tocá Abrir en la lista para ver la versión nueva.");
+  renderR();scheduleExpiry();
+}
+async function loadSharedRemitos(){
+  await migrateLocalRemitos();
+  await refreshSharedRemitos();
+  remitosChannel=sb.channel("remitos-compartidos").on("postgres_changes",
+    {event:"*",schema:"public",table:"remitos"},()=>{void refreshSharedRemitos().catch(error=>{console.error(error);say("No se pudieron actualizar los remitos compartidos.")})})
+    .subscribe(status=>{if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")say("Se perdió la conexión en vivo de los remitos.")});
+}
+async function setAuthSession(session){
+  const generation=++authGeneration;
+  if(!session){
+    sharedUserId=null;
+    if(remitosChannel)void sb.removeChannel(remitosChannel);
+    if(catalogChannel)void sb.removeChannel(catalogChannel);
+    remitosChannel=null;catalogChannel=null;remitos=[];cur=null;curUpd="";
+    $("app").hidden=true;$("app_status").hidden=false;
+    $("app_status").textContent="Conectando con el espacio compartido…";
+    renderR();
+    if(!anonymousSignInPending){
+      anonymousSignInPending=true;
+      try{
+        const {data,error}=await sb.auth.signInAnonymously();
+        anonymousSignInPending=false;
+        if(error)throw error;
+        if(data.session)await setAuthSession(data.session);
+      }catch(error){
+        anonymousSignInPending=false;console.error(error);
+        $("app_status").textContent="No se pudo iniciar. Activá el acceso anónimo en Authentication → Sign In / Providers de Supabase.";
+      }
+    }
+    return;
+  }
+  if(session.user.id===sharedUserId&&!$("app").hidden)return;
+  if(!session.user.is_anonymous){
+    await sb.auth.signOut();
+    return;
+  }
+  if(generation!==authGeneration)return;
+  sharedUserId=session.user.id;
+  $("app_status").hidden=true;$("app").hidden=false;
+  try{await loadSharedCatalog()}
+  catch(error){console.error(error);say("No se pudo sincronizar el catálogo. Verificá las tablas y permisos de Supabase.")}
+  try{await loadSharedRemitos()}
+  catch(error){console.error(error);say("No se pudieron cargar los remitos. Verificá las tablas y permisos de Supabase.")}
+}
 renderR();expireRemitos();
+if(sb){
+  sb.auth.onAuthStateChange((_event,session)=>{queueMicrotask(()=>{void setAuthSession(session).catch(error=>{console.error(error);$("app_status").hidden=false;$("app_status").textContent="Ocurrió un error al conectar con el espacio compartido."})})});
+  sb.auth.getSession().then(({data,error})=>{
+    if(error)throw error;
+    return setAuthSession(data.session);
+  }).catch(error=>{console.error(error);$("app_status").hidden=false;$("app_status").textContent="No se pudo iniciar Supabase. Revisá la configuración y la conexión."});
+}else $("app_status").textContent="No se pudo cargar Supabase. Revisá tu conexión e intentá de nuevo.";
 $("b_docx").onclick=()=>exp("docx");
 $("b_pdf").onclick=()=>exp("pdf");
 </script>
